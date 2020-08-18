@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
+using Microsoft.VisualBasic.FileIO;
 
 namespace DeZipper
 {
@@ -23,7 +24,6 @@ namespace DeZipper
         #region Fields
         private string zipPath;
         private string tgPath;
-        private Dictionary<string, ZipArchiveEntry> entries;
         #endregion
 
         #region Properties
@@ -34,7 +34,7 @@ namespace DeZipper
         /// <summary>
         /// ZIP 파일에 있는 파일들의 리스트를 HashTable 형태로 가져옵니다.
         /// </summary>
-        public Dictionary<string, ZipArchiveEntry> Entries { get { return this.entries; } }
+        public Dictionary<string, ZipArchiveEntry> Entries { get; }
         /// <summary>
         /// 삭제 작업을 수행할 디렉토리 경로를 설정할 수 있습니다. 기호 '\' 는 자동으로 '/' 로 변환됩니다.
         /// </summary>
@@ -67,7 +67,7 @@ namespace DeZipper
         {
             this.TargetDirectory = "./";
             this.Options = DeleteOptions.None;
-            this.entries = new Dictionary<string, ZipArchiveEntry>();
+            this.Entries = new Dictionary<string, ZipArchiveEntry>();
         }
         /// <summary>
         /// ZIP 파일을 엽니다.
@@ -82,7 +82,7 @@ namespace DeZipper
 
             try
             {
-                this.entries = new Dictionary<string, ZipArchiveEntry>();
+                this.Entries = new Dictionary<string, ZipArchiveEntry>();
                 NewZip(this.zipPath);
             }
             catch
@@ -104,7 +104,7 @@ namespace DeZipper
 
             try
             {
-                this.entries = new Dictionary<string, ZipArchiveEntry>();
+                this.Entries = new Dictionary<string, ZipArchiveEntry>();
                 NewZip(this.zipPath);
             }
             catch
@@ -127,7 +127,7 @@ namespace DeZipper
 
             try
             {
-                this.entries = new Dictionary<string, ZipArchiveEntry>();
+                this.Entries = new Dictionary<string, ZipArchiveEntry>();
                 NewZip(this.zipPath);
             }
             catch
@@ -170,7 +170,7 @@ namespace DeZipper
             this.zipPath = zipPath;
             this.zipPath = this.zipPath.Replace('\\', '/');
 
-            entries.Clear();
+            Entries.Clear();
             
             try
             {
@@ -187,7 +187,6 @@ namespace DeZipper
                         else
                             fileList.Add(entry);
                     }
-
                     while (dirStack.Count != 0)
                     {
                         var dirItem = dirStack.Pop();
@@ -202,19 +201,16 @@ namespace DeZipper
                         }
                         entryStack.Push(dirItem);
                     }
-
                     for (int i = fileList.Count - 1; i >= 0; i--)
                     {
                         var item = fileList.ElementAt(i);
                         fileList.RemoveAt(i);
                         entryStack.Push(item);
                     }
-
                     foreach(ZipArchiveEntry entry in entryStack)
                     {
                         this.Entries.Add(entry.FullName, entry);
                     }
-                    
                 }
             }
             catch
@@ -226,7 +222,7 @@ namespace DeZipper
         /// <summary>
         /// 파일 삭제를 실행합니다.
         /// </summary>
-        /// <returns>삭제한 파일들의 전체 경로.</returns>
+        /// <returns>삭제한 파일들의 전체 경로</returns>
         public IEnumerable<string> ExecuteDelete()
         {
             Stack<string> zipDirPaths = new Stack<string>();
@@ -247,7 +243,14 @@ namespace DeZipper
                     {
                         rtStr = tgPath + entry.Value.FullName;
                         if (File.Exists(rtStr))
-                            File.Delete(rtStr);
+                        {
+                            if ((Options & DeleteOptions.ToRecycleBin) != 0)
+                                FileSystem.DeleteFile(rtStr,
+                                    UIOption.OnlyErrorDialogs,
+                                    RecycleOption.SendToRecycleBin);
+                            else
+                                File.Delete(rtStr);
+                        }
                         else
                             rtStr = FIlE_NOT_FOUND + rtStr;
                     }
@@ -270,7 +273,14 @@ namespace DeZipper
                         if (!Directory.Exists(rtStr))
                             rtStr = DIR_NOT_FOUND + rtStr;
                         else if (!Directory.EnumerateFileSystemEntries(rtStr).Any())
-                            Directory.Delete(rtStr);
+                        {
+                            if ((Options & DeleteOptions.ToRecycleBin) != 0)
+                                FileSystem.DeleteDirectory(rtStr,
+                                    UIOption.OnlyErrorDialogs,
+                                    RecycleOption.SendToRecycleBin);
+                            else
+                                Directory.Delete(rtStr);
+                        }
                         else
                             rtStr = DIR_NOT_EMPTY + rtStr;
                     }
@@ -291,7 +301,12 @@ namespace DeZipper
             {
                 try
                 {
-                    File.Delete(zipPath);
+                    if ((Options & DeleteOptions.ToRecycleBin) != 0)
+                        FileSystem.DeleteFile(zipPath,
+                            UIOption.OnlyErrorDialogs,
+                            RecycleOption.SendToRecycleBin);
+                    else
+                        File.Delete(zipPath);
                 }
                 catch (DirectoryNotFoundException)
                 {
