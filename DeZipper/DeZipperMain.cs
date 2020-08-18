@@ -66,8 +66,6 @@ namespace DeZipper
                         case "-r":
                         case "-recycle":
                             dezipper.Options |= DeleteOptions.ToRecycleBin;
-                            isExecutable = false;
-                            Console.WriteLine("Sorry, \"-recycle\" function is incomplete.");
                             break;
                         case "-ex":
                         case "-exclude":

@@ -97,7 +97,7 @@
             this.toRecycleBin.Name = "toRecycleBin";
             this.toRecycleBin.Size = new System.Drawing.Size(168, 32);
             this.toRecycleBin.TabIndex = 3;
-            this.toRecycleBin.Text = "휴지통(미구현)";
+            this.toRecycleBin.Text = "휴지통으로 보내기";
             this.toRecycleBin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.toRecycleBin.UseVisualStyleBackColor = true;
             // 
