@@ -47,6 +47,6 @@ E-mail : zx1056@naver.com
 
 ## Change Log
 2017-11-30, v0.1  
- : DeZipper Initial Release
+ : DeZipper Initial Release  
 2020-08-18, v0.2  
  : 휴지통으로 보내기 기능 구현
