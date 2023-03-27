@@ -43,7 +43,7 @@ DeZipper는 zip 파일에 포함된 파일 리스트를 읽은 다음, 원하는
 
 ## Credit
 Auth : anteater333 (@ Github.com)  
-E-mail : zx1056@naver.com
+E-mail : anteater1056@gmail.com
 
 ## Change Log
 2017-11-30, v0.1  
